@@ -1,0 +1,89 @@
+---
+
+- name: build mac mothership
+  hosts: localhost
+  connection: local
+
+  tasks:
+  - name: install home brew packages
+    homebrew: name={{item}} state=latest update_homebrew=yes
+    with_items:
+        # development tools
+        - zsh
+        - git
+        - vim
+        - tmux
+        - nvm
+        - nginx
+        # db
+        - mongodb
+        - rethinkdb
+        # utilities
+        - unison
+        - tree
+        - rename
+        - archey
+  
+  - name: install homebrew cask
+    shell: brew install caskroom/cask/brew-cask
+
+  - name: install brew casks
+    homebrew_cask: name={{item}} 
+    with_items:
+        - nvalt
+        - vagrant
+        - vagrant-manager
+        - virtualbox
+        - google-chrome
+        - iterm2
+        - sublime-text
+        - karabiner
+        - purevpn
+        - spectacle
+        - skitch
+        - skype
+
+### install node and npm global module
+  - name: install node
+    shell: bash -c '. ~/.nvm/nvm.sh; nvm install stable'
+
+  - name: install global npm module
+    shell: bash -c '.  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node fsmonitor'
+
+### sync dirs and create symlink
+  - name: copy mymeta to home dir
+    copy: src=~/百度云同步盘/mymeta dest=~
+  
+  - name: copy bin to home dir
+    copy: src=~/百度云同步盘/mymeta/home/bin dest=~
+
+  - name: symlink to .vimrc
+    file: src=~/mymeta/home/.vimrc dest=~/.vimrc state=link force=yes
+
+  - name: symlink to .zshenv
+    file: src=~/mymeta/home/.zshenv dest=~/.zshenv state=link force=yes
+
+  - name: symlink to .zshrc
+    file: src=~/mymeta/home/.zshrc dest=~/.zshrc state=link force=yes
+
+### set zsh the default shell
+  - name: set zsh as default shell
+    sudo: yes
+    password: sj198511
+    user: name=junshen shell=/usr/local/bin/zsh
+
+  - name: install oh my zsh
+    shell: curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+
+### install vim plugin 
+  - name: install vundle ( vim plugin manager )
+    git: repo=https://github.com/VundleVim/Vundle.vim.git dest=~/.vim/bundle/Vundle.vim force=yes
+
+  - name: install vundle plugins
+    shell: vim +PluginInstall +qall
+
+### copy Ultisnips to ~/.vim dir
+  - name: copy Ultisnips to .vim dir
+    copy: src=~/百度云同步盘/mymeta/home/Ultisnips dest=~/.vim
+
+

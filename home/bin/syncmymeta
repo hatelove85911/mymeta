@@ -1,0 +1,4 @@
+#!/bin/bash
+
+unison -auto -batch ~/百度云同步盘/mymeta ~/mymeta
+unison -auto -batch ~/mymeta ~/百度云同步盘/mymeta

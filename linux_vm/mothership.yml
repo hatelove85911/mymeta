@@ -1,0 +1,57 @@
+---
+
+- name: build mothership
+  hosts: all
+
+  tasks:
+  - name: add ppa
+    sudo: yes
+    apt_repository: repo={{item}}
+    with_items:
+      - ppa:nginx/stable
+      - ppa:git-core/ppa
+      # tmux
+      - ppa:pi-rho/dev
+
+  - name: install packages
+    sudo: yes
+    apt: pkg={{ item }} update_cache=yes state=latest
+    with_items:
+        # development tools
+        - zsh
+        - git
+        - vim
+        - tmux
+        - nginx
+        - ansible
+        # utilities
+        - unison
+        - tree
+        - watch
+
+  - name: set zsh as default shell
+    sudo: yes
+    user: name=vagrant shell=/usr/bin/zsh
+
+  - name: install oh my zsh
+    shell: bash -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+  - name: install nvm
+    shell: curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.29.0/install.sh | bash 
+
+  - name: install node
+    shell: bash -c '. ~/.nvm/nvm.sh; nvm install stable'
+
+  - name: install global npm module
+    shell: bash -c '. ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node fsmonitor'
+
+  - name: symlink to .vimrc
+    file: src=~/mymeta/home/.vimrc dest=~/.vimrc state=link force=yes
+
+  - name: symlink to .zshenv
+    file: src=~/mymeta/home/.zshenv dest=~/.zshenv state=link force=yes
+
+  - name: symlink to .zshrc
+    file: src=~/mymeta/home/.zshrc dest=~/.zshrc state=link force=yes
+
+
