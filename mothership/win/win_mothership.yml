@@ -1,0 +1,17 @@
+---
+
+  vars:
+      packages:
+        - git
+        - sublimetext2
+        - autohotkey
+        - google-chrome-x64
+        - vagrant
+        - virtualbox
+        - python
+        - mongodb
+        - nodejs
+        - jdk8
+        - nginx
+        - putty
+

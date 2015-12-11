@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# install home brew
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+# install ansible
+brew install ansible
+
+# run setup playbook
+ansible-playbook -v -i "localhost," ./mothership.yml --user=junshen --extra-vars "ansible_sudo_pass=sj198511"

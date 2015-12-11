@@ -1,0 +1,167 @@
+---
+
+- name: build my mothership
+  hosts: 127.0.0.1
+  connection: local
+
+  vars:
+      common:
+          packages:
+            # development tools
+            - zsh
+            - git
+            - vim
+            - tmux
+            - nginx
+            # db
+            - mongodb
+            # utilities
+            - unison
+            - tree
+            - rename
+            - watch
+
+          node_modules:
+            - standard
+            - iron-node
+      osx:
+          packages:
+            - rethinkdb
+            - fswatch
+            - archey
+            - Lorem
+          casks:
+            - nvalt
+            - vagrant
+            - vagrant-manager
+            - virtualbox
+            - google-chrome
+            - iterm2
+            - sublime-text
+            - karabiner
+            - purevpn
+            - spectacle
+            - skitch
+            - skype
+      ubuntu:
+          ppa:
+            - ppa:nginx/stable
+            - ppa:git-core/ppa
+            # tmux
+            - ppa:pi-rho/dev
+          packages:
+
+  tasks:
+############################################################
+### osx
+############################################################
+  
+# update homebrew twice to solve strange issues
+  - name: upgrade homebrew
+    homebrew: update_homebrew=yes     
+  - name: upgrade homebrew
+    homebrew: update_homebrew=yes
+# update homebrew twice to solve strange issues
+
+  - name: install common packages
+    homebrew: name={{item}} state=latest
+    with_items: "{{common.packages}}"
+    when: ansible_distribution == "MacOSX"
+
+  - name: unlink homebrew cask
+    shell: brew unlink brew-cask
+    when: ansible_distribution == "MacOSX"
+  
+  - name: install homebrew cask
+    shell: brew install caskroom/cask/brew-cask
+    when: ansible_distribution == "MacOSX"
+
+  - name: install brew casks
+    homebrew_cask: name={{item}} 
+    with_items: "{{ osx.casks }}"
+    when: ansible_distribution == "MacOSX"
+
+  - name: install unox for unison synchorinization to work on osx
+    shell: git clone https://github.com/jumpstarter-io/unox.git ~/unox && cp ~/tmp/unox/unox.py /usr/local/bin/unison-fsmonitor && rm -rf ~/unox
+    when: ansible_distribution == "MacOSX"
+  
+  - name: install python packagess
+    pip: name=macfsevents
+    when: ansible_distribution == "MacOSX"
+
+  - name: copy mymeta to home dir
+    copy: src=~/百度云同步盘/mymeta dest=~
+    when: ansible_distribution == "MacOSX"
+  
+  - name: copy bin to home dir
+    copy: src=~/百度云同步盘/mymeta/home/bin dest=~
+    when: ansible_distribution == "MacOSX"
+
+  - name: symlink subl to ~/bin/subl
+    file: src=/Applications/Sublime\ Text\ 2.app/Contents/SharedSupport/bin/subl dest=~/bin/subl state=link force=yes
+    when: ansible_distribution == "MacOSX"
+
+  - name: set zsh as default shell
+    sudo: yes
+    user: name=junshen shell=/usr/local/bin/zsh
+    when: ansible_distribution == "MacOSX"
+############################################################
+### ubuntu
+############################################################
+
+  - name: add ppa
+    sudo: yes
+    apt_repository: repo={{item}}
+    with_items: "{{ubuntu.ppa}}"
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install packages
+    sudo: yes
+    apt: pkg={{item}} update_cache=yes state=latest
+    with_items: "{{ common.packages }}"
+    when: ansible_distribution == "Ubuntu"
+
+  - name: set zsh as default shell
+    sudo: yes
+    user: name=vagrant shell=/usr/bin/zsh
+    when: ansible_distribution == "Ubuntu"
+
+############################################################
+### common
+############################################################
+# node
+  # - name: install nvm
+  #   shell: git clone https://github.com/creationix/nvm.git ~/.nvm && cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`
+
+  # - name: install node
+  #   shell: bash -c '. ~/.nvm/nvm.sh; nvm install stable; nvm use stable'
+
+  # - name: install global npm module
+  #   npm: name={{item}} global=yes state=latest
+  #   with_items: "{{common.node_modules}}"
+
+  # # - name: install global npm module
+  # #   shell: bash -c '.  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node'
+
+# oh my zsh
+  - name: install oh my zsh
+    shell: sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+  - name: symlink to .zshenv
+    file: src=~/mymeta/home/.zshenv dest=~/.zshenv state=link force=yes
+
+  - name: symlink to .zshrc
+    file: src=~/mymeta/home/.zshrc dest=~/.zshrc state=link force=yes
+
+# vim
+  - name: install vundle ( vim plugin manager )
+    git: repo=https://github.com/VundleVim/Vundle.vim.git dest=~/.vim/bundle/Vundle.vim force=yes
+
+  - name: symlink to .vimrc
+    file: src=~/mymeta/home/.vimrc dest=~/.vimrc state=link force=yes
+
+  - name: install vundle plugins
+    shell: vim +PluginInstall +qall
+
+  - name: copy Ultisnips to .vim dir
+    copy: src=~/mymeta/home/Ultisnips dest=~/.vim

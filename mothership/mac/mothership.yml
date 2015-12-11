@@ -20,6 +20,7 @@
         - rethinkdb
         # utilities
         - unison
+        - fswatch
         - tree
         - rename
         - archey
@@ -42,13 +43,15 @@
         - spectacle
         - skitch
         - skype
+  # - name: install unox for unison synchorinization to work on osx
+  #   git
 
 ### install node and npm global module
   - name: install node
     shell: bash -c '. ~/.nvm/nvm.sh; nvm install stable'
 
   - name: install global npm module
-    shell: bash -c '.  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node fsmonitor'
+    shell: bash -c '.  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node'
 
 ### sync dirs and create symlink
   - name: copy mymeta to home dir
@@ -68,8 +71,6 @@
 
 ### set zsh the default shell
   - name: set zsh as default shell
-    sudo: yes
-    password: sj198511
     user: name=junshen shell=/usr/local/bin/zsh
 
   - name: install oh my zsh
