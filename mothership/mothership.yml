@@ -43,6 +43,7 @@
             - spectacle
             - skitch
             - skype
+            - launchcontrol  # the launchctl gui, easier for trouble shooting
       ubuntu:
           ppa:
             - ppa:nginx/stable
