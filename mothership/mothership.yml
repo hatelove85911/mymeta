@@ -27,7 +27,9 @@
             - standard
             - iron-node
       osx:
+          usr: junshen
           packages:
+            - python3
             - rethinkdb
             - fswatch
             - archey
@@ -47,6 +49,7 @@
             - skype
             - launchcontrol  # the launchctl gui, easier for trouble shooting
       ubuntu:
+          usr: vagrant
           ppa:
             - ppa:nginx/stable
             - ppa:git-core/ppa
@@ -71,21 +74,13 @@
     with_items: "{{common.packages}}"
     when: ansible_distribution == "MacOSX"
 
-#  - name: unlink homebrew cask
-#    shell: brew unlink brew-cask
-#    when: ansible_distribution == "MacOSX"
-#  
-#  - name: install homebrew cask
-#    shell: brew install caskroom/cask/brew-cask
-#    when: ansible_distribution == "MacOSX"
-
   - name: install brew casks
     homebrew_cask: name={{item}} 
     with_items: "{{ osx.casks }}"
     when: ansible_distribution == "MacOSX"
 
   - name: install unox for unison synchorinization to work on osx
-    shell: git clone https://github.com/jumpstarter-io/unox.git ~/unox && cp ~/tmp/unox/unox.py /usr/local/bin/unison-fsmonitor && rm -rf ~/unox
+    shell: curl -o /usr/local/bin/unison-fsmonitor https://raw.githubusercontent.com/jumpstarter-io/unox/master/unox.py
     when: ansible_distribution == "MacOSX"
   
   - name: install python packagess
@@ -106,7 +101,7 @@
 
   - name: set zsh as default shell
     sudo: yes
-    user: name=junshen shell=/usr/local/bin/zsh
+    user: chsh -s /usr/local/bin/zsh {{ osx.usr }}
     when: ansible_distribution == "MacOSX"
 ############################################################
 ### ubuntu
@@ -126,7 +121,7 @@
 
   - name: set zsh as default shell
     sudo: yes
-    user: name=vagrant shell=/usr/bin/zsh
+    user: chsh -s /usr/local/bin/zsh {{ ubuntu.usr }}
     when: ansible_distribution == "Ubuntu"
 
 ############################################################
