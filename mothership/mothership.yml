@@ -3,6 +3,8 @@
 - name: build my mothership
   hosts: 127.0.0.1
   connection: local
+  environment:
+    PATH: "$HOME/bin:/usr/local/bin:{{ ansible_env.PATH }}"
 
   vars:
       common:
@@ -69,13 +71,13 @@
     with_items: "{{common.packages}}"
     when: ansible_distribution == "MacOSX"
 
-  - name: unlink homebrew cask
-    shell: brew unlink brew-cask
-    when: ansible_distribution == "MacOSX"
-  
-  - name: install homebrew cask
-    shell: brew install caskroom/cask/brew-cask
-    when: ansible_distribution == "MacOSX"
+#  - name: unlink homebrew cask
+#    shell: brew unlink brew-cask
+#    when: ansible_distribution == "MacOSX"
+#  
+#  - name: install homebrew cask
+#    shell: brew install caskroom/cask/brew-cask
+#    when: ansible_distribution == "MacOSX"
 
   - name: install brew casks
     homebrew_cask: name={{item}} 
@@ -135,14 +137,14 @@
   #   shell: git clone https://github.com/creationix/nvm.git ~/.nvm && cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`
 
   # - name: install node
-  #   shell: bash -c '. ~/.nvm/nvm.sh; nvm install stable; nvm use stable'
+  #   shell: . ~/.nvm/nvm.sh; nvm install stable; nvm use stable
 
   # - name: install global npm module
   #   npm: name={{item}} global=yes state=latest
   #   with_items: "{{common.node_modules}}"
 
   # # - name: install global npm module
-  # #   shell: bash -c '.  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node'
+  # #   shell: .  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node
 
 # oh my zsh
   - name: install oh my zsh
