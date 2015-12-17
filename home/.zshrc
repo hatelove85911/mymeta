@@ -53,7 +53,7 @@ plugins=(git)
 
 # User configuration
 
-export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=./node_modules/.bin:$HOME/bin:/usr/local/bin:$PATH
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # source nvm
@@ -96,21 +96,7 @@ export EDITOR='vim'
 alias ~='cd ~'
 alias -- -='cd -'
 
-
-
 alias l='ls -la'
-alias la='ls -la'
-alias today='date +"%A, %B %-d, %Y"'
-
-alias dbg="$SHELL -x"
-alias tv='terminal_velocity'
-alias nv='open -a nvalt'
-alias calc='open -a calculator'
-alias syif=archey
-
-
-# function
-today2(){
-    echo -n "Today's date is:"
-    date +"%A, %B %-d, %Y"
-}
+alias zshrc="vim ~/.zshrc"
+alias vimrc="vim ~/.vimrc"
+alias msh="vim ~/mymeta/mothership/mothership.yml"

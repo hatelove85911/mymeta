@@ -15,8 +15,8 @@
     <key>RunAtLoad</key>
     <true/>
     <key>StandardErrorPath</key>
-    <string>/Users/Aaron/Library/Logs/syncmymeta-error.log</string>
+    <string>/Users/junshen/Library/Logs/syncmymeta-error.log</string>
     <key>StandardOutPath</key>
-    <string>/Users/Aaron/Library/Logs/syncmymeta.log</string>
+    <string>/Users/junshen/Library/Logs/syncmymeta.log</string>
 </dict>
 </plist>

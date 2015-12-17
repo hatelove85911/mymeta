@@ -1,4 +1,5 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""C-Space"C-Space"C-Space"C-Space"C-Space""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <silent><C-p> :CtrlSpace O<CR>
 " my functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! MyDetectOS()
@@ -83,7 +84,13 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'tpope/vim-fugitive'
 
 " quick file finder 
-Plugin 'kien/ctrlp.vim'
+" Plugin 'kien/ctrlp.vim'
+Plugin 'Shougo/unite.vim'
+
+" ctrlspace
+" ag is recommended by ctrlspace
+Plugin 'rking/ag.vim'
+Plugin 'szw/vim-ctrlspace'
 
 " smooth scroll when pressing ctrl+d or ctrl u
 Plugin 'joeytwiddle/sexy_scroller.vim'
@@ -128,7 +135,8 @@ Plugin 'kana/vim-textobj-function'
 Plugin 'thinca/vim-textobj-function-javascript'
 
 " window manager
-Plugin 'zhaocai/GoldenView.Vim'
+Plugin 'spolu/dwm.vim'
+" Plugin 'zhaocai/GoldenView.Vim'
 
 " for cursor shape change in difference terminal
 Plugin 'jszakmeister/vim-togglecursor'
@@ -142,6 +150,9 @@ Plugin 'myusuf3/numbers.vim'
 
 " xml 
 Plugin 'sukima/xmledit'
+
+" scratch pad
+Plugin 'mtth/scratch.vim'
 call vundle#end()
 
 " use git protocol by default other than https
@@ -186,18 +197,18 @@ set nowrap
 set t_ut=
 set t_Co=256
 let g:solarized_termcolors=256
-set background=light
-colorscheme monokai
+silent! colorscheme monokai
 set number
 set showcmd
 set cursorline
+set showtabline=0
 
 " indention
 set smartindent
 set autoindent
 set tabstop=4
-set softtabstop=4
-set shiftwidth=4
+set softtabstop=2
+set shiftwidth=2
 set expandtab
 
 " open help in split vertical window
@@ -213,9 +224,6 @@ au BufRead,BufNewFile *.md set filetype=markdown
 " window management
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" window management settings
-let g:goldenview__enable_default_mapping = 0
-au vimenter * :DisableGoldenViewAutoResize
 nnoremap _ <c-w><
 nnoremap + <c-w>>
 nnoremap ( <c-w>-
@@ -258,39 +266,63 @@ au FileType html let g:formatdef_htmlbeautify .= '." -A force"'
 let g:formatters_js = ['standard']
 
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ctrl-space
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if executable("ag")
+    let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
+endif
+
+let g:CtrlSpaceSetDefaultMapping = 0
+nnoremap <silent><leader>p :CtrlSpace<CR>
+
+let g:CtrlSpaceSaveWorkspaceOnExit = 1
+let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
+let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
+
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" scratch pad
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:scratch_no_mappings = 1
+nmap <leader>gs <plug>(scratch-insert-reuse)
+nmap <leader>gg :Scratch<CR>
+nmap <leader>gp :ScratchPreview<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ctrlp
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ctrlp settings
-let g:ctrlp_map = ''
-nmap <leader>p :CtrlP<CR>
-nmap <leader>b :CtrlPBuffer<CR>
+" let g:ctrlp_map = ''
+" nmap <leader>p :CtrlP<CR>
+" nmap <leader>b :CtrlPBuffer<CR>
 
-let g:ctrlp_working_path_mode=0  
-let g:ctrlp_max_files=0
-let g:ctrlp_max_height=20
-let g:ctrlp_show_hidden = 1
-let g:ctrlp_custom_ignore = {
-            \ 'dir':  '\v[\/](\.(git|hg|svn)|node_modules)$',
-            \ 'file': '\v\.(exe|so|dll)$',
-            \ 'link': 'some_bad_symbolic_links',
-            \ }
+" let g:ctrlp_working_path_mode=0  
+" let g:ctrlp_max_files=0
+" let g:ctrlp_max_height=20
+" let g:ctrlp_show_hidden = 1
+" let g:ctrlp_custom_ignore = {
+"             \ 'dir':  '\v[\/](\.(git|hg|svn)|node_modules)$',
+"             \ 'file': '\v\.(exe|so|dll)$',
+"             \ 'link': 'some_bad_symbolic_links',
+"             \ }
 
-let g:ctrlp_user_command = {
-            \ 'types': {
-            \ 1: ['.git', 'cd %s && git ls-files --cached --exclude-standard --others'],
-            \ 2: ['.hg', 'hg --cwd %s locate -I .'],
-            \ },
-            \ 'fallback': 'find %s -type f'
-            \ }
+" let g:ctrlp_user_command = {
+"             \ 'types': {
+"             \ 1: ['.git', 'cd %s && git ls-files --cached --exclude-standard --others'],
+"             \ 2: ['.hg', 'hg --cwd %s locate -I .'],
+"             \ },
+"             \ 'fallback': 'find %s -type f'
+"             \ }
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " airline setting
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " airline setting
-let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme = 'powerlineish'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
