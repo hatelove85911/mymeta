@@ -1,31 +1,14 @@
-""C-Space"C-Space"C-Space"C-Space"C-Space""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <silent><C-p> :CtrlSpace O<CR>
-" my functions
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! MyDetectOS()
-    if has("win32") || has("win16") || has("win64")
-        return "windows"
-    elseif has("mac") || has("macunix")
-        return "mac"
-    elseif has("win32unix")
-        return "cygwin"
-    elseif has("unix")
-        let l:uname = substitute(system("uname"), '\n', '', '')
-        if l:uname ==? "linux"
-            return "linux"
-        else
-            return "unix"
-        endif
-    endif
-endfunction
-
-function! MyDetectTerminal()
-
-endfunction
+let s:is_windows = has('win16') || has('win32') || has('win64')
+let s:is_cygwin = has('win32unix')
+let s:is_linux = has("unix") && substitute(system("uname"), '\n', '', '') ==? "linux"
+let s:is_mac = !s:is_windows && !s:is_cygwin
+      \ && (has('mac') || has('macunix') || has('gui_macvim') ||
+      \   (!executable('xdg-open') &&
+      \     system('uname') =~? '^darwin'))
 
 
 "different setting between different os
-if MyDetectOS() ==? "windows"
+if s:is_windows
     set rtp+=~/vimfiles/bundle/Vundle.vim/
     let path='~/vimfiles/bundle'
 else 
@@ -40,7 +23,7 @@ endif
 filetype off
 "==================================================
 " plugins
-if has("win32") || has("win16")
+if s:is_windows
     call vundle#begin(path)
 else 
     call vundle#begin()
@@ -58,9 +41,7 @@ Plugin 'jiangmiao/auto-pairs'
 " color scheme
 Plugin 'sickill/vim-monokai'
 Plugin 'tomasr/molokai'
-Plugin 'BusyBee'
 Plugin 'altercation/vim-colors-solarized'
-Plugin 'goatslacker/mango.vim'
 
 " status line
 Plugin 'bling/vim-airline'
@@ -69,7 +50,7 @@ Plugin 'bling/vim-airline'
 Plugin 'kshenoy/vim-signature'
 
 " multiple line edit
-" Plugin 'terryma/vim-multiple-cursors'
+Plugin 'terryma/vim-multiple-cursors'
 
 " operate on surroundings
 Plugin 'tpope/vim-surround'
@@ -77,20 +58,16 @@ Plugin 'tpope/vim-surround'
 " directory tree
 Plugin 'scrooloose/nerdtree'
 
-" tagbar
-" Plugin 'majutsushi/tagbar'
-" Plugin 'marijnh/tern_for_vim'
-
+" git
 Plugin 'tpope/vim-fugitive'
 
 " quick file finder 
-" Plugin 'kien/ctrlp.vim'
-Plugin 'Shougo/unite.vim'
-
-" ctrlspace
-" ag is recommended by ctrlspace
+" ag is a front end for the silver searcher ag program
 Plugin 'rking/ag.vim'
-Plugin 'szw/vim-ctrlspace'
+Plugin 'Shougo/vimproc.vim'
+Plugin 'Shougo/unite.vim'
+"unite mru source
+Plugin 'Shougo/neomru.vim'  
 
 " smooth scroll when pressing ctrl+d or ctrl u
 Plugin 'joeytwiddle/sexy_scroller.vim'
@@ -108,35 +85,29 @@ Plugin 'bigfish/vim-js-context-coloring'
 " distinguish json from javascript
 Plugin 'elzr/vim-json'
 
-" mark down
-Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
-Plugin 'shime/vim-livedown'
-
 " easy motion( move around super fast )
 Plugin 'Lokaltog/vim-easymotion'
-
-" local vimrc solution
-Plugin 'MarcWeber/vim-addon-local-vimrc'
 
 " for navigation between items in quick fix or location list easier
 Plugin 'tpope/vim-unimpaired'
 
-" nodejs plugin
-Plugin 'moll/vim-node'
-" Plugin 'sidorares/node-vim-debugger'
-
 " comment out code
 Plugin 'tpope/vim-commentary'
 
-" create my own text object
+" text object
+" text objects depend on kana/vim-textobj-user
 Plugin 'kana/vim-textobj-user'
 Plugin 'kana/vim-textobj-function'
+Plugin 'kana/vim-textobj-line'
+Plugin 'sgur/vim-textobj-parameter'  
+Plugin 'beloglazov/vim-textobj-punctuation'
+Plugin 'poetic/vim-textobj-javascript'
+" javascript function text object, standalone, indepent of kana/vim-textobj-user
 Plugin 'thinca/vim-textobj-function-javascript'
 
 " window manager
-Plugin 'spolu/dwm.vim'
-" Plugin 'zhaocai/GoldenView.Vim'
+" Plugin 'spolu/dwm.vim'
+Plugin 'szw/vim-maximizer'
 
 " for cursor shape change in difference terminal
 Plugin 'jszakmeister/vim-togglecursor'
@@ -144,15 +115,29 @@ Plugin 'jszakmeister/vim-togglecursor'
 " relative number
 Plugin 'myusuf3/numbers.vim'
 
-
 " the ultimate code completion plugin
 " Plugin 'Valloric/YouCompleteMe'
 
 " xml 
 Plugin 'sukima/xmledit'
+Plugin 'mattn/emmet-vim'
 
 " scratch pad
 Plugin 'mtth/scratch.vim'
+
+" vim submode
+Plugin 'kana/vim-submode'
+
+" Vim sugar for the UNIX shell commands that need it the most
+Plugin 'tpope/vim-eunuch'
+
+" generate incremental thing, like number, character
+" calutil is needed by visIncr plugin for increamental date 
+Plugin 'cskeeters/vim-calutil'
+Plugin 'vim-scripts/VisIncr'
+
+" camel case motion
+Plugin 'bkad/CamelCaseMotion'
 call vundle#end()
 
 " use git protocol by default other than https
@@ -179,7 +164,7 @@ set hidden
 " turn on wildmenu
 set wildmenu
 " access system clipboard
-if MyDetectOS() ==? "linux" 
+if s:is_linux 
     set clipboard=unnamedplus
 else
     set clipboard=unnamed
@@ -214,6 +199,10 @@ set expandtab
 " open help in split vertical window
 cabbrev h vert h
 
+" natural split position
+set splitbelow
+set splitright
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " autocommand
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -223,38 +212,67 @@ au BufRead,BufNewFile *.md set filetype=markdown
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " window management
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:maximizer_set_default_mapping = 1
 
-nnoremap _ <c-w><
-nnoremap + <c-w>>
-nnoremap ( <c-w>-
-nnoremap ) <c-w>+
-nmap <silent> <c-n>  <Plug>GoldenViewSplit
-nmap <silent> ]w  <Plug>GoldenViewNext
-nmap <silent> [w  <Plug>GoldenViewPrevious
-nmap <silent> <c-m>  <Plug>GoldenViewSwitchToggle
-nnoremap <leader>q :q<CR>
-nnoremap <leader>qq :qa<CR>
-nnoremap <leader>w :w<CR>
-nnoremap <leader>ww :wa<CR>
-nnoremap <leader>xa :xa<CR>
+call submode#enter_with('ctrl_window', 'n', '', 'gw', '<Nop>')
+" call submode#leave_with('ctrl_window', 'n', '', '<Esc>')
 
-"maximize and restore window
-nnoremap <leader>o :call MaximizeToggle()<CR>
-function! MaximizeToggle()
-    if exists("s:maximize_session")
-        exec "source " . s:maximize_session
-        call delete(s:maximize_session)
-        unlet s:maximize_session
-        let &hidden=s:maximize_hidden_save
-        unlet s:maximize_hidden_save
-    else
-        let s:maximize_hidden_save = &hidden
-        let s:maximize_session = tempname()
-        set hidden
-        exec "mksession! " . s:maximize_session
-        only
-    endif
+" widen or narrow a window
+call submode#map('ctrl_window', 'n', '', 'l', '20<c-w>>')
+call submode#map('ctrl_window', 'n', '', 'h', '20<c-w><')
+" increase of decrease the hight of a window
+call submode#map('ctrl_window', 'n', '', '+', '8<c-w>+')
+call submode#map('ctrl_window', 'n', '', '-', '8<c-w>-')
+" move to next/previous window
+call submode#map('ctrl_window', 'n', '', 'j', '<c-w>w')
+call submode#map('ctrl_window', 'n', '', 'k', '<c-w>W')
+" swap position of window in the horizontal or vertical stack
+nmap gws <c-w>r
+nmap gwS <c-w>R
+" toggle maximization of a window
+nmap gwo :MaximizerToggle<CR>
+" move to next/previous window
+nmap ]w <c-w>w
+nmap [w <c-w>W
+" create split window
+nmap <bar> :vs<CR>
+nmap - :sp<CR>
+
+function! MyRotate()
+  if winnr('$') == 2
+     " save the original position, jump to the first window
+     let initial = winnr()
+     exe 1 . "wincmd w"
+
+     wincmd l
+     if winnr() != 1
+        " succeeded moving to the right window
+        wincmd J " make it the bot window
+     else
+        " cannot move to the right, so we are at the top
+        wincmd H " make it the left window
+     endif
+
+     " restore cursor to the initial window
+     exe initial . "wincmd w"
+  endif
 endfunction
+nmap gwt :call MyRotate()<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" unite
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap [unite] <Nop>
+nmap gu [unite]
+
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+call unite#filters#sorter_default#use(['sorter_rank'])
+
+nnoremap <silent> [unite]b :<C-u>Unite -no-split -buffer-name=buffer -start-insert buffer<CR>
+nnoremap <silent> [unite]u :<C-u>Unite -no-split -buffer-name=files -start-insert buffer file_rec/async:!<CR>
+nnoremap <silent> [unite]a :<C-u>Unite -no-split -buffer-name=all -start-insert buffer file file_rec/async:!<CR>
+nnoremap <silent> [unite]m :<C-u>Unite -no-split -buffer-name=mru -start-insert file_mru<CR>
+nnoremap <silent> [unite]f :<C-u>Unite -no-split -buffer-name=file -start-insert file<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " code formatter
@@ -265,58 +283,14 @@ au FileType xhtml let g:formatdef_tidy_xhtml .= '." --indent-attributes 1"'
 au FileType html let g:formatdef_htmlbeautify .= '." -A force"'
 let g:formatters_js = ['standard']
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ctrl-space
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-if executable("ag")
-    let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
-endif
-
-let g:CtrlSpaceSetDefaultMapping = 0
-nnoremap <silent><leader>p :CtrlSpace<CR>
-
-let g:CtrlSpaceSaveWorkspaceOnExit = 1
-let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
-let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
-
-
-
-
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " scratch pad
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:scratch_no_mappings = 1
-nmap <leader>gs <plug>(scratch-insert-reuse)
-nmap <leader>gg :Scratch<CR>
+let g:scratch_horizontal = 0
+nmap <leader>gi <plug>(scratch-insert-reuse)
+nmap <leader>gs :Scratch<CR>
 nmap <leader>gp :ScratchPreview<CR>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ctrlp
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ctrlp settings
-" let g:ctrlp_map = ''
-" nmap <leader>p :CtrlP<CR>
-" nmap <leader>b :CtrlPBuffer<CR>
-
-" let g:ctrlp_working_path_mode=0  
-" let g:ctrlp_max_files=0
-" let g:ctrlp_max_height=20
-" let g:ctrlp_show_hidden = 1
-" let g:ctrlp_custom_ignore = {
-"             \ 'dir':  '\v[\/](\.(git|hg|svn)|node_modules)$',
-"             \ 'file': '\v\.(exe|so|dll)$',
-"             \ 'link': 'some_bad_symbolic_links',
-"             \ }
-
-" let g:ctrlp_user_command = {
-"             \ 'types': {
-"             \ 1: ['.git', 'cd %s && git ls-files --cached --exclude-standard --others'],
-"             \ 2: ['.hg', 'hg --cwd %s locate -I .'],
-"             \ },
-"             \ 'fallback': 'find %s -type f'
-"             \ }
-
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " airline setting
@@ -351,7 +325,6 @@ let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 let g:UltiSnipsEditSplit="vertical"
 nmap <leader>se :UltiSnipsEdit<CR>
 
-
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " YCM 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -364,6 +337,7 @@ let g:ycm_key_list_previous_completion=[] " don't use tab to select next complet
 " easy motion
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " easy motion 
+nmap <leader><leader>a  <Plug>(easymotion-jumptoanywhere)
 nmap <leader><leader>w  <Plug>(easymotion-bd-w)
 nmap <leader><leader>j  <Plug>(easymotion-bd-jk)
 nmap <leader><leader>l  <Plug>(easymotion-lineanywhere)
@@ -374,58 +348,50 @@ hi link EasyMotionTarget2First ErrorMsg
 hi link EasyMotionTarget2Second ErrorMsg
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" livedown
+" nerdtree
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" livedown(markdown preview)
-nmap <leader>ll :LivedownPreview<CR>
-nmap <leader>lk :LivedownKill<CR>
+nmap <silent> <leader>nd :NERDTreeToggle<cr>
+let g:NERDTreeShowHidden=1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" multi-cursor 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" multi-cursor configuration
+let g:multi_cursor_exit_from_insert_mode = 0
+let g:multi_cursor_exit_from_visual_mode = 0
+nmap <c-m> :MultipleCursorsFind 
+vmap <c-m> :MultipleCursorsFind 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" js context coloring
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:js_context_colors_enabled = 1
+let g:js_context_colors_usemaps = 0
+" following unimpaired toggle key mapping convention
+nmap coj :JSContextColorToggle<CR> 
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" camelcasemotion
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+call camelcasemotion#CreateMotionMappings('<leader>')
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-textobj-punctuation configuration
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" As most of the time, you need to operate on the text until punctuation, I add the following bindings to make it even more convenient to use:
+" Now, you just need to press cu, du, yu, or vu to operate on the text until the closest punctuation.
+xmap u iu
+omap u iu
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " some shortcut mapping
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" toggle tag bar
-nnoremap <leader>tb :TagbarToggle<CR>
 " quick insert semicolon at the end of the line
 nnoremap <leader>; A;<Esc>
+"upper case Y to copy from cursor to line end
+nnoremap Y v$hy
+" select the whole line
+nnoremap vv V
+" select to the end of line
+nnoremap V v$h
 " for not to lose the yanked text after pasting over selection
 xnoremap p pgvy
-" nerdtree 
-nmap  <leader>nd :NERDTreeToggle<cr>
-let g:NERDTreeShowHidden=1
-
-" multi-cursor configuration
-let g:multi_cursor_exit_from_insert_mode = 0
-
-" use node to execute js code directly and output to shell directly
-nnoremap <leader>node :Node %<cr>
-
-" upper case Y to copy from cursor to line end
-nnoremap Y v$hy
-
-" script to output shell command output to a new buffer in a separate window 
-command! -complete=shellcmd -nargs=+ Shell call s:RunShellCommand(<q-args>)
-function! s:RunShellCommand(cmdline)
-    let isfirst = 1
-    let words = []
-    for word in split(a:cmdline)
-        if isfirst
-            let isfirst = 0  " don't change first word (shell command)
-        else
-            if word[0] =~ '\v[%#<]'
-                let word = expand(word)
-            endif
-            let word = shellescape(word, 1)
-        endif
-        call add(words, word)
-    endfor
-    let expanded_cmdline = join(words)
-    botright new
-    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
-    call setline(1, 'You entered:  ' . a:cmdline)
-    call setline(2, 'Expanded to:  ' . expanded_cmdline)
-    call append(line('$'), substitute(getline(2), '.', '=', 'g'))
-    silent execute '$read !'. expanded_cmdline
-    1
-endfunction
-command! -complete=file -nargs=* Node call s:RunShellCommand('node '.<q-args>)
-

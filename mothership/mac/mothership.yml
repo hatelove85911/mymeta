@@ -1,90 +1,216 @@
 ---
 
-- name: build mac mothership
-  hosts: localhost
+- name: build my mothership
+  hosts: 127.0.0.1
   connection: local
+  environment:
+    PATH: "./node_modules/.bin:$HOME/bin:/usr/local/bin:{{ ansible_env.PATH }}"
+
+
+  vars:
+      common:
+          packages:
+            # development tools
+            - zsh
+            - git
+            - vim
+            - tmux
+            - nginx
+            # db
+            - mongodb
+            # utilities
+            - unison
+            - tree
+            - watch
+          python_packages:
+
+          nvm_version: "0.30.0"
+          node_modules:
+            - eslint  # pluggable linting utility for javascript and jsx
+            - standard  # javascript standard code checker
+            - iron-node # node debugger 
+      osx:
+          packages:
+            - rename
+            - python3
+            - rethinkdb
+            - fswatch
+            - archey
+            - Lorem
+            - the_silver_searcher # ag, the code line search used by ag.vim vim plugin which is again used by ctrlspace vim plugin
+          python_packages:
+            - macfsevents
+          casks:
+            - nvalt
+            - vagrant
+            - vagrant-manager
+            - virtualbox
+            - google-chrome
+            - iterm2
+            - sublime-text
+            - karabiner
+            - purevpn
+            - spectacle
+            - skitch
+            - skype
+            - launchcontrol  # the launchctl gui, easier for trouble shooting
+            - libreoffice
+            - dropbox
+            - alfred
+      ubuntu:
+          proxy_env:
+            http_proxy: http://proxy.sin.sap.corp:8080
+            https_proxy: http://proxy.sin.sap.corp:8080
+          ppa:
+            - ppa:nginx/stable
+            - ppa:git-core/ppa
+            # tmux
+            - ppa:pi-rho/dev
+          packages:
+            - silversearcher-ag
 
   tasks:
-  - name: install home brew packages
-    homebrew: name={{item}} state=latest update_homebrew=yes
-    with_items:
-        # development tools
-        - zsh
-        - git
-        - vim
-        - tmux
-        - nvm
-        - nginx
-        # db
-        - mongodb
-        - rethinkdb
-        # utilities
-        - unison
-        - fswatch
-        - tree
-        - rename
-        - archey
+############################################################
+### osx
+############################################################
   
-  - name: install homebrew cask
-    shell: brew install caskroom/cask/brew-cask
+# update homebrew twice to solve strange issues
+  - name: upgrade homebrew
+    homebrew: update_homebrew=yes     
+    when: ansible_distribution == "MacOSX"
+  - name: upgrade homebrew
+    homebrew: update_homebrew=yes
+    when: ansible_distribution == "MacOSX"
+# update homebrew twice to solve strange issues
+
+  - name: install common packages
+    homebrew: name={{item}} state=latest
+    with_items: "{{common.packages}}"
+    when: ansible_distribution == "MacOSX"
+
+  - name: install osx specific packages
+    homebrew: name={{item}} state=latest
+    with_items: "{{osx.packages}}"
+    when: ansible_distribution == "MacOSX"
 
   - name: install brew casks
     homebrew_cask: name={{item}} 
-    with_items:
-        - nvalt
-        - vagrant
-        - vagrant-manager
-        - virtualbox
-        - google-chrome
-        - iterm2
-        - sublime-text
-        - karabiner
-        - purevpn
-        - spectacle
-        - skitch
-        - skype
-  # - name: install unox for unison synchorinization to work on osx
-  #   git
+    with_items: "{{ osx.casks }}"
+    when: ansible_distribution == "MacOSX"
 
-### install node and npm global module
+  - name: install unox for unison synchorinization to work on osx
+    sudo: yes
+    shell: curl -o /usr/local/bin/unison-fsmonitor https://raw.githubusercontent.com/jumpstarter-io/unox/master/unox.py && chmod 755 /usr/local/bin/unison-fsmonitor
+    when: ansible_distribution == "MacOSX"
+  
+  - name: install osx python packagess
+    sudo: yes
+    pip: name={{item}} state=latest
+    with_items: "{{ osx.python_packages }}"
+    when: ansible_distribution == "MacOSX"
+  
+
+############################################################
+### ubuntu
+############################################################
+
+  - name: add ppa
+    sudo: yes
+    apt_repository: repo={{item}}
+    with_items: "{{ubuntu.ppa}}"
+    environment: "{{ubuntu.proxy_env}}"
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install packages
+    sudo: yes
+    apt: pkg={{item}} update_cache=yes state=latest
+    with_items: "{{ common.packages }}"
+    environment: "{{ubuntu.proxy_env}}"
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install ubuntu packages
+    sudo: yes
+    apt: pkg={{item}} update_cache=yes state=latest
+    with_items: "{{ ubuntu.packages }}"
+    environment: "{{ubuntu.proxy_env}}"
+    when: ansible_distribution == "Ubuntu"
+#############################################################
+### common
+############################################################
+# git configuration
+  - name: git config
+    shell: git config --global user.email "redwolf85911@gmail.com"; git config --global user.name "junshen"
+# oh my zsh
+  - name: install oh my zsh
+    shell: sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+  - name: symlink ~/.zshenv
+    file: src=~/Dropbox/mymeta/home/.zshenv dest=~/.zshenv state=link force=yes
+
+  - name: symlink ~/.zshrc
+    file: src=~/Dropbox/mymeta/home/.zshrc dest=~/.zshrc state=link force=yes
+
+  - name: set zsh as default shell
+    sudo: yes
+    shell: chsh -s /usr/local/bin/zsh {{ ansible_ssh_user }}
+    when: ansible_distribution == "MacOSX"
+
+  - name: set zsh as default shell
+    sudo: yes
+    shell: chsh -s /usr/bin/zsh {{ ansible_ssh_user }}
+    when: ansible_distribution == "Ubuntu"
+
+# ~/bin
+  - name: symlink ~/bin
+    file: src=~/Dropbox/mymeta/home/bin dest=~/bin state=link force=yes
+
+# node
+  - name: install nvm
+    shell: curl -o- https://raw.githubusercontent.com/creationix/nvm/v{{ common.nvm_version }}/install.sh | bash
+
   - name: install node
-    shell: bash -c '. ~/.nvm/nvm.sh; nvm install stable'
+    shell: . ~/.nvm/nvm.sh; nvm install node
+    when: ansible_distribution == "MacOSX"
+
+  - name: install node
+    shell: . ~/.nvm/nvm.sh; nvm install node
+    environment: "{{ubuntu.proxy_env}}"
+    when: ansible_distribution == "Ubuntu"
 
   - name: install global npm module
-    shell: bash -c '.  ~/.nvm/nvm.sh; nvm use stable; npm install -g standard iron-node'
+    shell: . ~/.nvm/nvm.sh; nvm use node; npm install -g {{ item }} 
+    with_items: "{{common.node_modules}}"
 
-### sync dirs and create symlink
-  - name: copy mymeta to home dir
-    copy: src=~/百度云同步盘/mymeta dest=~
-  
-  - name: copy bin to home dir
-    copy: src=~/百度云同步盘/mymeta/home/bin dest=~
-
-  - name: symlink to .vimrc
-    file: src=~/mymeta/home/.vimrc dest=~/.vimrc state=link force=yes
-
-  - name: symlink to .zshenv
-    file: src=~/mymeta/home/.zshenv dest=~/.zshenv state=link force=yes
-
-  - name: symlink to .zshrc
-    file: src=~/mymeta/home/.zshrc dest=~/.zshrc state=link force=yes
-
-### set zsh the default shell
-  - name: set zsh as default shell
-    user: name=junshen shell=/usr/local/bin/zsh
-
-  - name: install oh my zsh
-    shell: curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-
-### install vim plugin 
+# vim
   - name: install vundle ( vim plugin manager )
     git: repo=https://github.com/VundleVim/Vundle.vim.git dest=~/.vim/bundle/Vundle.vim force=yes
 
+  - name: symlink ~/.vimrc
+    file: src=~/Dropbox/mymeta/home/.vimrc dest=~/.vimrc state=link force=yes
+
   - name: install vundle plugins
-    shell: vim +PluginInstall +qall
+    shell: echo | echo | vim -c PluginInstall -c qall
+    ignore_errors: yes
+    # shell: vim -c source ~/.vimrc +PluginInstall +qall
 
-### copy Ultisnips to ~/.vim dir
-  - name: copy Ultisnips to .vim dir
-    copy: src=~/百度云同步盘/mymeta/home/Ultisnips dest=~/.vim
+  - name: symlink ~/.vim/Ultisnips
+    file: src=~/Dropbox/mymeta/home/Ultisnips dest=~/.vim/Ultisnips state=link force=yes
 
+  - name: make vimproc.vim plugin
+    shell: make chdir=~/.vim/bundle/vimproc.vim 
+
+  - name: install vim js context coloring npm dependencies
+    shell: . ~/.nvm/nvm.sh; nvm use node; npm install chdir=~/.vim/bundle/vim-js-context-coloring
+# python
+############################################################
+### osx launchd user agent
+############################################################
+  # - name: deploy syncmymeta
+  #   file: src=~/mymeta/mothership/mac/syncmymeta.plist dest=~/Library/LaunchAgents/syncmymeta.plist state=link force=yes
+
+  # - name: deploy syncmybin
+  #   file: src=~/mymeta/mothership/mac/syncmybin.plist dest=~/Library/LaunchAgents/syncmybin.plist state=link force=yes
+
+  # - name: deploy syncmyultisnips
+  #   file: src=~/mymeta/mothership/mac/syncmyultisnips.plist dest=~/Library/LaunchAgents/syncmyultisnips.plist state=link force=yes
 

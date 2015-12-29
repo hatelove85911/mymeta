@@ -1,0 +1,19 @@
+#! /bin/bash
+
+# create /etc/apt/apt.conf.d/80proxy and set proxy for apt-get 
+sudo touch /etc/apt/apt.conf.d/80proxy
+echo 'Acquire::http::proxy "http://proxy.sin.sap.corp:8080";' | sudo tee /etc/apt/apt.conf.d/80proxy
+
+echo 'Acquire::https::proxy "http://proxy.sin.sap.corp:8080";' | sudo tee -a /etc/apt/apt.conf.d/80proxy
+
+# install ansible
+export http_proxy=http://proxy.sin.sap.corp:8080
+export https_proxy=http://proxy.sin.sap.corp:8080
+sudo -E add-apt-repository -y ppa:ansible/ansible
+sudo apt-get install -y python-software-properties
+sudo -E add-apt-repository -y ppa:fkrull/deadsnakes
+sudo apt-get update
+sudo apt-get install -y ansible
+
+# run setup playbook
+/usr/bin/ansible-playbook -v -i "localhost," ../mac/mothership.yml --extra-vars "ansible_sudo_pass=vagrant"

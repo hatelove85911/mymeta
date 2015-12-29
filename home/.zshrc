@@ -57,7 +57,8 @@ export PATH=./node_modules/.bin:$HOME/bin:/usr/local/bin:$PATH
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # source nvm
-source ~/.nvm/nvm.sh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh"  ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 nvm use stable
 
 # enable extended globbing
@@ -99,4 +100,7 @@ alias -- -='cd -'
 alias l='ls -la'
 alias zshrc="vim ~/.zshrc"
 alias vimrc="vim ~/.vimrc"
-alias msh="vim ~/mymeta/mothership/mothership.yml"
+alias msh="vim ~/Dropbox/mymeta/mothership/mac/mothership.yml"
+
+
+LS_COLORS=$LS_COLORS:'ow=34;40:' ; export LS_COLORS

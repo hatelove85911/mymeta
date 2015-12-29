@@ -1,0 +1,17 @@
+snippet ui5view "ui5 view"
+<mvc:View
+  controllerName="$1"
+  xmlns:mvc="sap.ui.core.mvc"
+  displayBlock="true"
+  xmlns="sap.m">
+  $0
+</mvc:View>
+endsnippet
+
+snippet ui5page "ui5 page"
+<$1Page title="{$2}">
+  <content>
+	$0
+  </content>
+</$1Page>
+endsnippet

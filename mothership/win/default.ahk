@@ -21,7 +21,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ;;;;;;;;;;;Esc to Capslock;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;Caps lock to Esc and control;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;$Escape::CapsLock
+$Escape::CapsLock
 
 
 ;SetCapsLockState, AlwaysOff
@@ -36,34 +36,14 @@ if ( A_PriorKey = "CapsLock" )
 return
 
 
-
-Shift::
-Send {Shift Down}
-KeyWait, Shift
-Send {Shift Up}
-if ( A_PriorKey = "RShift" )
-{
-    ToggleCapsLock()
-}
-return
-
-ToggleCapsLock(){
-    capsLockOn := GetKeyState("Capslock" , "T")
-    if(capsLockOn = 1){
-        SetCapsLockState, Off
-    } else if (capsLockOn = 0) {
-        SetCapsLockState, On
-    }
-    Return
-}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;toggle proxy;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;toggle proxy for critical applications;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
 !p::
-    ToggleProxy("http://proxy.pal.sap.corp:8080")
+    ToggleProxy("http://proxy.sin.sap.corp:8080")
 return
 
 ToggleProxy(ProxyAddress){
@@ -73,9 +53,16 @@ ToggleProxy(ProxyAddress){
     RegWrite,REG_DWORD,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable, %ProxyOn%
     RegWrite,REG_SZ,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyServer,%ProxyAddress%
 
+
     if(ProxyOn = 1){
+;        Run, git.exe config --global http.proxy http://proxy.sin.sap.corp:8080
+;        Run, git.exe config --global https.proxy http://proxy.sin.sap.corp:8080
+;        Run, npm config set proxy http://proxy.company.com:8080
+;        npm config set https-proxy http://proxy.company.com:8080
         TrayTip Connection Status, Proxy Enabled - %ProxyAddress%, 3
     } else if (ProxyOn = 0) {
+;        Run, git.exe config --global --unset http.proxy
+;        Run, git.exe config --global --unset https.proxy
         TrayTip Connection Status, Proxy Disabled, 3
     }
 
