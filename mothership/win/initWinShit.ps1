@@ -29,6 +29,7 @@ choco install -y 7zip
 choco install -y cygwin
 choco install -y ResophNotes
 choco install -y dejavufonts
+choco install -y xming
 
 # change system path variable
 $git_path_name = "C:\\Program Files\\Git\\cmd"

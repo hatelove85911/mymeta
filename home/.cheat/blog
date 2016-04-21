@@ -1,0 +1,13 @@
+# generate new post
+hexo new [layout] "title"
+hexo new draft "title"
+
+# preview
+hexo s
+hexo s --draft
+
+# generate
+hexo generate
+
+# deploy
+hexo deploy

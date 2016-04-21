@@ -13,7 +13,6 @@
             # development tools
             - zsh
             - git
-            - vim
             - tmux
             - nginx
             # db
@@ -22,24 +21,60 @@
             - unison
             - tree
             - watch
-          python_packages:
-
+            - cmake
+            - ruby
+            - python3
+            - httpie # http clinet for human
           nvm_version: "0.30.0"
+          git_global_conifg:
+            - user.email "redwolf85911@gmail.com"
+            - user.name "junshen"
+            - diff.tool vimdiff
+            - difftool.prompt false
+            - alias.dt difftool
+            - alias.df diff
+            - merge.tool vimdiff
+            - merge.conflictstyle diff3
+            - mergetool.prompt false
+          python_packages:
+            - cheat
           node_modules:
             - eslint  # pluggable linting utility for javascript and jsx
             - standard  # javascript standard code checker
+            - node-inspector
+            - devtool # the best debugger on node
             - iron-node # node debugger 
+            - jsonlint # eslint json checker
+            - yeoman-doctor
+            - yo
+            - medium-cli # medium blog from command line
+            - instant-markdown-d # preview markdown in vim server
+            - hexo # nodejs blogging generator
+            - grunt-cli
+            #- n # mini node version manager
+          gem:
+            - jekyll
+            - bundler
+            - rake
       osx:
           packages:
+            - vim
+            - node
             - rename
             - python3
             - rethinkdb
             - fswatch
             - archey
             - Lorem
-            - the_silver_searcher # ag, the code line search used by ag.vim vim plugin which is again used by ctrlspace vim plugin
+            - the_silver_searcher # ag, t,he code line search used by ag.vim vim plugin which is again used by ctrlspace vim plugin
+            - fzf  # command line fuzzy finder
+            - peco # Simplistic interactive filtering tool
+            - fasd # Command-line productivity booster, offers quick access to files and directories, inspired by autojump, z and v.
+
           python_packages:
+            - vim-gtk
             - macfsevents
+
           casks:
             - nvalt
             - vagrant
@@ -57,31 +92,54 @@
             - libreoffice
             - dropbox
             - alfred
+            - recordit # a screen recorder to generate gif or tweet
       ubuntu:
-          proxy_env:
-            http_proxy: http://proxy.sin.sap.corp:8080
-            https_proxy: http://proxy.sin.sap.corp:8080
           ppa:
             - ppa:nginx/stable
             - ppa:git-core/ppa
-            # tmux
-            - ppa:pi-rho/dev
+            - ppa:pi-rho/dev   # tmux
           packages:
+            - nodejs
             - silversearcher-ag
+            - libxml2-utils
+            - xclip
+            - corkscrew
 
   tasks:
+############################################################
+### set facts based on underlying OS 
+############################################################
+  - name: set facts when it's Ubuntu
+    set_fact:
+      env:
+        PATH: "./node_modules/.bin:$HOME/bin:{{ ansible_env.PATH }}"
+        http_proxy: http://proxy.sin.sap.corp:8080
+        https_proxy: http://proxy.sin.sap.corp:8080
+      zshbin: /usr/bin/zsh
+    when: ansible_distribution == "Ubuntu"
+
+  - name: set facts when it's OSX
+    set_fact:
+      env:
+        PATH: "./node_modules/.bin:$HOME/bin:/usr/local/bin:{{ ansible_env.PATH }}"
+      zshbin: /usr/local/bin/zsh
+    when: ansible_distribution == "MacOSX"
+
 ############################################################
 ### osx
 ############################################################
   
-# update homebrew twice to solve strange issues
+######## update homebrew twice to solve strange issues #####
+
   - name: upgrade homebrew
     homebrew: update_homebrew=yes     
     when: ansible_distribution == "MacOSX"
+
   - name: upgrade homebrew
     homebrew: update_homebrew=yes
     when: ansible_distribution == "MacOSX"
-# update homebrew twice to solve strange issues
+############################################################
+
 
   - name: install common packages
     homebrew: name={{item}} state=latest
@@ -108,7 +166,6 @@
     pip: name={{item}} state=latest
     with_items: "{{ osx.python_packages }}"
     when: ansible_distribution == "MacOSX"
-  
 
 ############################################################
 ### ubuntu
@@ -118,31 +175,55 @@
     sudo: yes
     apt_repository: repo={{item}}
     with_items: "{{ubuntu.ppa}}"
-    environment: "{{ubuntu.proxy_env}}"
+    environment: "{{env}}"
     when: ansible_distribution == "Ubuntu"
 
   - name: install packages
     sudo: yes
     apt: pkg={{item}} update_cache=yes state=latest
     with_items: "{{ common.packages }}"
-    environment: "{{ubuntu.proxy_env}}"
+    environment: "{{env}}"
+    when: ansible_distribution == "Ubuntu"
+
+  - name: add latest node debian repository
+    sudo: yes
+    shell: curl -sL https://deb.nodesource.com/setup_5.x | bash -
+    environment: "{{env}}"
     when: ansible_distribution == "Ubuntu"
 
   - name: install ubuntu packages
     sudo: yes
     apt: pkg={{item}} update_cache=yes state=latest
     with_items: "{{ ubuntu.packages }}"
-    environment: "{{ubuntu.proxy_env}}"
+    environment: "{{env}}"
     when: ansible_distribution == "Ubuntu"
+
+  - name: link /usr/bin/nodejs to /usr/bin/node 
+    sudo: yes
+    file: src=/usr/bin/nodejs dest=/usr/bin/node state=link force=yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: config ssh over http proxy - copy sshconfig to ~/.ssh/config
+    sudo: yes
+    file: src=~/Dropbox/mymeta/mothership/linux_vm/sshconfig dest=~/.ssh/config state=link force=yes
+    when: ansible_distribution == "Ubuntu"
+
 #############################################################
 ### common
 ############################################################
-# git configuration
-  - name: git config
-    shell: git config --global user.email "redwolf85911@gmail.com"; git config --global user.name "junshen"
+# git
+  - name: symlink ~/.gitconfig
+    file: src=~/Dropbox/mymeta/home/.gitconfig dest=~/.gitconfig state=link force=yes
+
 # oh my zsh
   - name: install oh my zsh
     shell: sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+  - name: mkdir .zsh-antigen
+    file: path=~/.zsh-antigen state=directory
+
+  - name: download antigen.sh
+    shell: curl -L https://raw.githubusercontent.com/zsh-users/antigen/master/antigen.zsh chdir=~/.zsh-antigen
 
   - name: symlink ~/.zshenv
     file: src=~/Dropbox/mymeta/home/.zshenv dest=~/.zshenv state=link force=yes
@@ -152,34 +233,26 @@
 
   - name: set zsh as default shell
     sudo: yes
-    shell: chsh -s /usr/local/bin/zsh {{ ansible_ssh_user }}
-    when: ansible_distribution == "MacOSX"
-
-  - name: set zsh as default shell
-    sudo: yes
-    shell: chsh -s /usr/bin/zsh {{ ansible_ssh_user }}
-    when: ansible_distribution == "Ubuntu"
+    shell: chsh -s {{zshbin}} {{ ansible_ssh_user }}
 
 # ~/bin
   - name: symlink ~/bin
     file: src=~/Dropbox/mymeta/home/bin dest=~/bin state=link force=yes
 
-# node
+# ~/.cheat
+  - name: symlink ~/.cheat
+    file: src=~/Dropbox/mymeta/home/.cheat dest=~/.cheat state=link force=yes
+
+# nvm
   - name: install nvm
     shell: curl -o- https://raw.githubusercontent.com/creationix/nvm/v{{ common.nvm_version }}/install.sh | bash
 
-  - name: install node
-    shell: . ~/.nvm/nvm.sh; nvm install node
-    when: ansible_distribution == "MacOSX"
-
-  - name: install node
-    shell: . ~/.nvm/nvm.sh; nvm install node
-    environment: "{{ubuntu.proxy_env}}"
-    when: ansible_distribution == "Ubuntu"
-
+# global npm module
   - name: install global npm module
-    shell: . ~/.nvm/nvm.sh; nvm use node; npm install -g {{ item }} 
+    sudo: yes
+    npm: name={{item}} global=yes state=latest
     with_items: "{{common.node_modules}}"
+    environment: "{{env}}"
 
 # vim
   - name: install vundle ( vim plugin manager )
@@ -194,23 +267,23 @@
     # shell: vim -c source ~/.vimrc +PluginInstall +qall
 
   - name: symlink ~/.vim/Ultisnips
-    file: src=~/Dropbox/mymeta/home/Ultisnips dest=~/.vim/Ultisnips state=link force=yes
+    file: src=~/Dropbox/mymeta/home/Ultisnips dest=~/.vim/UltiSnips state=link force=yes
 
   - name: make vimproc.vim plugin
     shell: make chdir=~/.vim/bundle/vimproc.vim 
 
-  - name: install vim js context coloring npm dependencies
-    shell: . ~/.nvm/nvm.sh; nvm use node; npm install chdir=~/.vim/bundle/vim-js-context-coloring
-# python
-############################################################
-### osx launchd user agent
-############################################################
-  # - name: deploy syncmymeta
-  #   file: src=~/mymeta/mothership/mac/syncmymeta.plist dest=~/Library/LaunchAgents/syncmymeta.plist state=link force=yes
+  - name: cmake youcompleteme
+    shell: ./install.sh chdir=~/.vim/bundle/YouCompleteMe
 
-  # - name: deploy syncmybin
-  #   file: src=~/mymeta/mothership/mac/syncmybin.plist dest=~/Library/LaunchAgents/syncmybin.plist state=link force=yes
+  - name: install tern_for_vim
+    shell: npm install chdir=~/.vim/bundle/tern_for_vim
 
-  # - name: deploy syncmyultisnips
-  #   file: src=~/mymeta/mothership/mac/syncmyultisnips.plist dest=~/Library/LaunchAgents/syncmyultisnips.plist state=link force=yes
+# tmux
+  - name: symlink ~/.tmux.conf
+    file: src=~/Dropbox/mymeta/home/.tmux.conf dest=~/.tmux.conf state=link force=yes
 
+  - name: install tpm, the package manager for tmux
+    git: repo=https://github.com/tmux-plugins/tpm dest=~/.tmux/plugins/tpm force=yes
+
+  - name: install tpm plugins
+    shell: ~/.tmux/plugins/tpm/bin/install_plugins

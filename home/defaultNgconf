@@ -1,0 +1,19 @@
+# Virtual Host configuration for example.com
+#
+# You can move that to a different file under sites-available/ and symlink that
+# to sites-enabled/ to enable it.
+
+server {
+    sendfile off;
+	listen 8080;
+	listen [::]:8080 ipv6only=on;
+
+	server_name localhost;
+
+	root /home/vagrant/my/www;
+	index index.html;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}

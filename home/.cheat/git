@@ -1,0 +1,75 @@
+g : git
+###################################
+# repository
+###################################
+gcl <repo url> [dirname]
+gra : git remote add origin <gitrepourl>
+
+# uptrack a file
+gignore <path_to_file> : git update-index --assume-unchanged <path_to_file>
+###################################
+# local repository
+###################################
+### branches management
+gb -d branchname
+gp origin --delete [branchname]
+gcb branchname : git checkout -b
+gcb [branchname] origin/[branchname] # new local branch && set remote branch as upstream
+gcb --track [branchname] [localbranchname] # new local branch && force set *local* branch as upstream
+gb -u [localbranchname] [branchname] # existing local branch && force set local branch as upstream
+
+### Between branches
+# merge
+gm : git merge
+gm featurebranch1 featurebranch2 ...  # merge the feature branches into the current branch, fast forward will be applied if possible
+gm --no-ff featurebranch1 featurebranch2  # merge the feature branch into the current branch, always create a new merge commit, no fast forward allowed
+# rebase
+grb: git rebase
+grb targetbranch # rebase current branch to the targetbranch
+grba : git rebase --abort
+grbc : git rebase --continue
+
+### three trees : HEAD, index, wd
+ga : git add file # wd -> index
+gaa : git add -all
+
+grs [commit] file: git reset [commit] file # reverse the file in index to the version of the commit, if commit omitted, reverse to the version of HEAD
+grs commit # repo -> HEAD -> index, meanwhile move branch
+grss commit # repo -> HEAD, meanwhile move branch, without affecting index & WD
+grsh commit # repo -> HEAD -> index -> WD, meanwhile move branch, WD NOT SAFE
+
+gco [commit] file: git checkout [commit] file # undo changes of file in WD to the version of the commit, if commit ommited, revert to the version of HEAD, WD NOT SAFE
+gco commit # repo -> HEAD -> index meanwhile move HEAD
+
+gcmsg [msg] : git commit -m # create new commit meanwhile move branch
+##################################
+# local <-> remote
+###################################
+### set upstream tracking branch
+gb -u upstream/branchname
+# push
+gp
+### force
+gp --force
+### new remote branch && set remote branch as upstream
+gp -u origin [branchname]
+
+gl # get and update remote repo( all branches ) to local repo and do merge afterwards
+gl origin [branchname] # pull a single remote branch
+gf # get and update remote repo( all branches ) to local repo
+gf origin [branchname] # fetch a single remote branch
+##################################
+# stash
+###################################
+
+
+###################################
+# check info
+###################################
+# Staging
+gst : git status
+gcf : git config --list
+gb : git branch
+gba : git branch -a
+# history
+glg

@@ -1,0 +1,17 @@
+ProxyCommand /usr/bin/corkscrew proxy.sin.sap.corp 8080 %h %p
+
+Host github.com
+    User git
+    Port 443
+    Hostname ssh.github.com
+    IdentityFile "/home/vagrant/.ssh/id_rsa"
+    TCPKeepAlive yes
+    IdentitiesOnly yes
+
+Host ssh.github.com
+    User git
+    Port 443
+    Hostname ssh.github.com
+    IdentityFile "/home/vagrant/.ssh/id_rsa"
+    TCPKeepAlive yes
+    IdentitiesOnly yes

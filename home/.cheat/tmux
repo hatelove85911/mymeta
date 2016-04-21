@@ -1,0 +1,22 @@
+ts  # create new session 
+ta  # tmux attach to a session
+tl  # list tmux session
+td  # detach current session
+exit # close current window
+tksv # kill tmux server
+tkss # kill a session
+================================================================================
+^B + c  # create a new window
+^B + s  # show available sessions and jump to a session
+^B + &  # close window
+^B + x  # close panel
+^B + ^n  # next window
+^B + ^p  # previous window
+^B + <|>  # move window
+^B + ,  # rename window
+^B + 0-9  # jump to the nth window
+^B + [  # enter into "copy" mode, scroll up and down for command history
+        # in copy mode, you can use use vim keys to navigate, like:
+        # ^+u(back half page), ^+d(forward half page) ... etc
+        # hit "Enter" to exit "copy mode"
+

@@ -1,0 +1,27 @@
+snippet iife "Immediately-Invoked Function Expression (iife)"
+(function(${1:window}) {
+  ${VISUAL}$0
+}(${2:$1}))
+endsnippet
+
+
+snippet vf "Function assigned to var"
+${1:var }${2:function_name} = function $2(${3}) {
+  ${VISUAL}$0
+
+}
+endsnippet
+
+snippet :, "Object Value JS"
+${1:value_name}: ${0:value}
+endsnippet
+
+snippet vo "object assigned to var"
+${1:var }${2:variable_name} = {
+  $3: $4
+}
+endsnippet
+
+snippet cl "console.log"
+console.log($1)$0
+endsnippet

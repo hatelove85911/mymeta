@@ -44,8 +44,7 @@ Plugin 'tomasr/molokai'
 Plugin 'altercation/vim-colors-solarized'
 
 " status line
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+Plugin 'bling/vim-airline'
 
 " show marks
 Plugin 'kshenoy/vim-signature'
@@ -69,8 +68,6 @@ Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/unite.vim'
 "unite mru source
 Plugin 'Shougo/neomru.vim'  
-"unite yank history source
-Plugin 'Shougo/neoyank.vim'
 
 " smooth scroll when pressing ctrl+d or ctrl u
 Plugin 'joeytwiddle/sexy_scroller.vim'
@@ -121,13 +118,7 @@ Plugin 'jszakmeister/vim-togglecursor'
 Plugin 'myusuf3/numbers.vim'
 
 " the ultimate code completion plugin
-Plugin 'Valloric/YouCompleteMe'
-
-" tern 
-Plugin 'ternjs/tern_for_vim'
-
-" tagbar
-Plugin 'majutsushi/tagbar'
+" Plugin 'Valloric/YouCompleteMe'
 
 " xml 
 Plugin 'sukima/xmledit'
@@ -154,8 +145,6 @@ Plugin 'bkad/CamelCaseMotion'
 " basically used by tmux resurrent to restore tmux session with vim opened
 Plugin 'tpope/vim-obsession'
 
-" for preview markdown in browser
-Plugin 'suan/vim-instant-markdown'
 
 call vundle#end()
 
@@ -196,14 +185,7 @@ set ic
 set hls
 " increment search
 set is
-
-" wrap
-" set wrap
-" set textwidth=60
-
-" set list charts
-set listchars=trail:·,precedes:«,extends:»,eol:↲,tab:▸\ 
-set list
+set nowrap
 " disable Background Color Erase (BCE) so that color schemes
 " render properly when inside 256-color tmux and GNU screen.
 " see also http://snk.tuxfamily.org/log/vim-256color-bce.html
@@ -309,7 +291,6 @@ nnoremap <silent> [unite]u :<C-u>Unite -no-split -buffer-name=files -start-inser
 nnoremap <silent> [unite]a :<C-u>Unite -no-split -buffer-name=all -start-insert buffer file file_rec/async:!<cr>
 nnoremap <silent> [unite]m :<C-u>Unite -no-split -buffer-name=mru -start-insert file_mru<cr>
 nnoremap <silent> [unite]f :<C-u>Unite -no-split -buffer-name=file -start-insert file<cr>
-nnoremap <silent> [unite]y :<C-u>Unite -no-split -buffer-name=yank history/yank<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " code formatter
@@ -336,7 +317,7 @@ nmap <leader>sp :ScratchPreview<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " airline setting
 " let g:airline#extensions#tabline#enabled = 1
-" let g:airline_theme = 'powerlineish'
+let g:airline_theme = 'powerlineish'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " syntastic
@@ -358,7 +339,6 @@ let g:syntastic_check_on_wq = 1
 
 nmap <leader>c :SyntasticCheck<cr>
 nmap <leader>sf :SyntasticInfo<cr>
-nmap cot :SyntasticToggleMode<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " utltsnips
@@ -378,22 +358,9 @@ nmap <leader>se :UltiSnipsEdit<cr>
 " YCM 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " YCM configuration
-" let g:ycm_filetype_blacklist = {}
-" let g:ycm_key_list_select_completion=[]  " don't use tab to select next completion
-" let g:ycm_key_list_previous_completion=[] " don't use tab to select next completion
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" tern for vim
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nmap <leader>td :TernDoc<cr>
-nmap <leader>tb :TernDocBrowse<cr>
-nmap <leader>tt :TernType<cr>
-nmap <leader>td :TernDef<cr>
-nmap <leader>tpd :TernDefPreview<cr>
-nmap <leader>tsd :TernDefSplit<cr>
-nmap <leader>ttd :TernDefTab<cr>
-nmap <leader>tr :TernRefs<cr>
-nmap <leader>tR :TernRename<cr>
+let g:ycm_filetype_blacklist = {}
+let g:ycm_key_list_select_completion=[]  " don't use tab to select next completion
+let g:ycm_key_list_previous_completion=[] " don't use tab to select next completion
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " easy motion
@@ -414,7 +381,6 @@ hi link EasyMotionTarget2Second ErrorMsg
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nmap <silent> <leader>nd :NERDTreeToggle<cr>
 let g:NERDTreeShowHidden=1
-let g:NERDTreeShowLineNumbers=1
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " multi-cursor 
@@ -422,8 +388,8 @@ let g:NERDTreeShowLineNumbers=1
 " multi-cursor configuration
 let g:multi_cursor_exit_from_insert_mode = 0
 let g:multi_cursor_exit_from_visual_mode = 0
-nmap <leader>m :MultipleCursorsFind 
-vmap <leader>m :MultipleCursorsFind 
+nmap <c-m> :MultipleCursorsFind 
+vmap <c-m> :MultipleCursorsFind 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " js context coloring
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -454,12 +420,6 @@ nmap <leader>ts :Obsession<cr>
 " stop trakcing session
 nmap <leader>tn :Obsession!<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" instant markdown 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:instant_markdown_autostart = 0
-nmap <leader>mp :InstantMarkdownPreview<cr>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " some shortcut mapping
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " quick insert semicolon at the end of the line
@@ -470,8 +430,6 @@ nnoremap Y v$hy
 nnoremap vv V
 " select to the end of line
 nnoremap V v$h
-" set all lines
-" nnoremap va 
 " for not to lose the yanked text after pasting over selection
 xnoremap p pgvy
 " for quick switch between two buffer in the same window
@@ -505,9 +463,7 @@ nmap <c-l> <c-w>l
 nnoremap 0 ^
 " g0 to the column 1
 nnoremap g0 0
-" move the cursor to the next next poistion 'xxx|' -> 'xxx'|
+" move the cursor out of a pair like 'sxxx|' to 'sxxx'|
 imap <c-l> <Esc>la
-" to quickly move to the end of curly braces
-" imap <c-]> <Esc>]}a
-" nmap <c-]> ]}
-
+" put cursor to the end of the wrapping {}|
+imap <c-}> <Esc>]}a

@@ -5,10 +5,13 @@ if [ ! "$githttpproxy"  ]
 then
   echo "enable proxy"
   proxyaddr="http://proxy.sin.sap.corp:8080"
-  # apt
-  sudo touch /etc/apt/apt.conf.d/80proxy
-  echo "Acquire::http::proxy $proxyaddr;" | sudo tee /etc/apt/apt.conf.d/80proxy
-  echo "Acquire::https::proxy $proxyaddr;" | sudo tee -a /etc/apt/apt.conf.d/80proxy
+  if [[ "$OSTYPE" == "linux"* ]]; then
+    echo "in linux"
+    # apt
+    sudo touch /etc/apt/apt.conf.d/80proxy
+    echo Acquire::http::proxy "\"$proxyaddr\";" | sudo tee /etc/apt/apt.conf.d/80proxy
+    echo Acquire::https::proxy "\"$proxyaddr\";" | sudo tee -a /etc/apt/apt.conf.d/80proxy
+  fi
 
   # git
   git config --global http.proxy $proxyaddr
@@ -19,9 +22,13 @@ then
   npm config set https-proxy $proxyaddr
 else
   echo "disable proxy"
-  # apt
-  sudo touch /etc/apt/apt.conf.d/80proxy
-  echo "" | sudo tee /etc/apt/apt.conf.d/80proxy
+  if [[ "$OSTYPE" == "linux"* ]]; then
+    echo "in linux"
+    # apt
+    sudo touch /etc/apt/apt.conf.d/80proxy
+    echo "" | sudo tee /etc/apt/apt.conf.d/80proxy
+  fi
+
   # git
   git config --global --unset http.proxy
   git config --global --unset https.proxy
